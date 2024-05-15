@@ -1,0 +1,31 @@
+<package>
+    <description brief="mars_ode_physics">
+       This library is for the ode physics for the DFKI Robot simulator
+    </description>
+    <author>Malte Langosz</author>
+    <maintainer>Malte Langosz/malte.langosz@dfki.de</maintainer>
+    <maintainer>Anna Born/anna.born@dfki.de</maintainer>
+    <license>BSD</license>
+
+    <depend package="simulation/lib_manager" />
+    <depend package="simulation/utils" />
+    <depend package="simulation/data_broker" />
+    <depend package="tools/configmaps" />
+    <depend package="simulation/ode-16" />
+    <depend package="simulation/mars2/mars_interfaces" />
+    <keywords>
+            <keyword>simulation</keyword>
+            <keyword>physics</keyword>
+    </keywords>
+
+    <stage>-1</stage>
+    <use>multi project</use>
+    <activity>active</activity>
+
+    <classifiers>
+        <classifier>c++</classifier>
+        <classifier>library</classifier>
+    </classifiers>
+
+    <tags>stable</tags>
+</package>

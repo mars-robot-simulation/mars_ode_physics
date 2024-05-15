@@ -1,0 +1,63 @@
+name:
+    type: string
+    required: true
+type: 
+    type: string
+    required: true
+parentFrame:
+    type: string
+inertia:
+    type: object
+    required: true
+    properties:
+      i00:
+        type: number
+        required: true
+      i01:
+        type: number
+        required: true
+      i02:
+        type: number
+        required: true
+      i10:
+        type: number
+        required: true
+      i11:
+        type: number
+        required: true
+      i12:
+        type: number
+        required: true
+      i20:
+        type: number
+        required: true
+      i21:
+        type: number
+        required: true
+      i22:
+        type: number
+        required: true
+mass:
+    type: number
+    minimum: 0.0
+    required: true
+position:
+    type: object
+    properties:
+      x:
+        type: number
+      y:
+        type: number
+      z:
+        type: number
+orientation:
+    type: object
+    properties:
+      x:
+        type: number
+      y:
+        type: number
+      z:
+        type: number
+      w:
+        type: number

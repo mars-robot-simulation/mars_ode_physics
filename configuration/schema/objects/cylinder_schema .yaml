@@ -1,0 +1,48 @@
+name:
+    type: string
+    required: true
+type: 
+    type: string
+    required: true
+parentFrame:
+    type: string
+extend:
+    type: object
+    required: true
+    properties:
+      x: # radius
+        type: number
+        minimum: 0.001 
+        required: true
+      y: # length
+        type: number
+        minimum: 0.001 
+        required: true
+position:
+    type: object
+    properties:
+      x:
+        type: number
+      y:
+        type: number
+      z:
+        type: number
+orientation:
+    type: object
+    properties:
+      x:
+        type: number
+      y:
+        type: number
+      z:
+        type: number
+      w:
+        type: number
+density:
+    type: number
+    minimum: 0.001 
+    required: true
+mass:
+    type: number
+    minimum: 0.0
+    required: true
