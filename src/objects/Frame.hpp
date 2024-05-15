@@ -44,6 +44,8 @@ namespace mars
             virtual void setPosition(const utils::Vector &pos) override;
             virtual void getRotation(utils::Quaternion *q) const override;
             virtual void setRotation(const utils::Quaternion &q) override;
+            virtual void getPose(utils::Vector *position, utils::Quaternion *rotation) const override;
+            virtual void setPose(const utils::Vector& position, const utils::Quaternion& rotation, const bool reset_velocities = false) override;
             virtual void addLinkedFrame(std::shared_ptr<DynamicObject> linked) override;
             virtual bool isLinkedFrame(std::shared_ptr<DynamicObject> linked) override;
             virtual std::vector<std::shared_ptr<DynamicObject>> getLinkedFrames(void) override;

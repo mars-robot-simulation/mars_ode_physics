@@ -1,0 +1,45 @@
+diff --git a/src/objects/Frame.cpp b/src/objects/Frame.cpp
+index 9dc8489..6bc7e63 100644
+--- a/src/objects/Frame.cpp
++++ b/src/objects/Frame.cpp
+@@ -302,6 +302,27 @@ namespace mars
+             }
+         }
+ 
++
++        void Frame::getPose(utils::Vector *position, utils::Quaternion *rotation) const
++        {
++            getPosition(position);
++            getRotation(rotation);
++        }
++
++        void Frame::setPose(const utils::Vector& position, const utils::Quaternion& rotation, const bool reset_velocities)
++        {
++            // TODO: explain why rotation has to be set first!
++            setRotation(rotation);
++            setPosition(position);
++
++            if(reset_velocities)
++            {
++                const auto zero = utils::Vector{.0, .0, .0};
++                setLinearVelocity(zero);
++                setAngularVelocity(zero);
++            }
++        }
++
+         /**
+          * \brief The method copies the linear velocity of the physically node at the
+          * adress of the linear_vel pointer vel.
+diff --git a/src/objects/Frame.hpp b/src/objects/Frame.hpp
+index 8765c57..e18c910 100644
+--- a/src/objects/Frame.hpp
++++ b/src/objects/Frame.hpp
+@@ -44,6 +44,8 @@ namespace mars
+             virtual void setPosition(const utils::Vector &pos) override;
+             virtual void getRotation(utils::Quaternion *q) const override;
+             virtual void setRotation(const utils::Quaternion &q) override;
++            virtual void getPose(utils::Vector *position, utils::Quaternion *rotation) const override;
++            virtual void setPose(const utils::Vector& position, const utils::Quaternion& rotation, const bool reset_velocities = false) override;
+             virtual void addLinkedFrame(std::shared_ptr<DynamicObject> linked) override;
+             virtual bool isLinkedFrame(std::shared_ptr<DynamicObject> linked) override;
+             virtual std::vector<std::shared_ptr<DynamicObject>> getLinkedFrames(void) override;
