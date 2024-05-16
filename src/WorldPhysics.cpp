@@ -29,6 +29,7 @@
 #include <mars_interfaces/sim/JointInterface.h>
 #include <mars_interfaces/Logging.hpp>
 #include <mars_utils/misc.h>
+#include <mars_utils/mathUtils.h>
 
 #define EPSILON 1e-10
 
@@ -75,7 +76,7 @@ namespace mars
          *        should correct be spezified?
          *      - world, space, contactgroup and world_init to false (0)
          */
-        WorldPhysics::WorldPhysics()
+        WorldPhysics::WorldPhysics() : interfaces::PhysicsInterface()
         {
             fast_step = 0;
             world_cfm = 1e-10;
@@ -401,6 +402,30 @@ namespace mars
             dJointID joint = dJointCreateContact(world, contactgroup, &c);
             dJointAttach(joint, b1, b2);
         }
+
+        configmaps::ConfigMap WorldPhysics::getConfigMap() const
+        {
+            configmaps::ConfigMap result;
+
+            result["ground friction"] = ground_friction;
+            result["ground cfm"] = ground_cfm;
+            result["ground erp"] = ground_erp;
+            result["step size [s]"] = step_size;
+            result["world cfm"] = world_cfm;
+            result["world erp"] = world_erp;
+            result["world gravity"] = utils::vectorToConfigItem(world_gravity);
+
+            return result;
+        }
+
+        std::vector<std::string> WorldPhysics::getEditPattern(const std::string& basePath) const
+        {
+            return std::vector<std::string>{""};
+        }
+
+        void WorldPhysics::edit(const std::string& configPath, const std::string& value)
+        {}
+
 
         const Vector WorldPhysics::getCenterOfMass(const std::vector<std::shared_ptr<NodeInterface>> &nodes) const
         {

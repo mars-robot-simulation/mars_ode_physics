@@ -15,8 +15,8 @@
 #include <mars_interfaces/sim_common.h>
 #include <mars_interfaces/sim/PhysicsInterface.hpp>
 #include <data_broker/DataBrokerInterface.h>
-#include<configmaps/ConfigMap.hpp>
-#include<configmaps/ConfigSchema.hpp>
+#include <configmaps/ConfigMap.hpp>
+#include <configmaps/ConfigSchema.hpp>
 #include <vector>
 
 #include <ode/ode.h>
@@ -50,7 +50,8 @@ namespace mars
          * Declaration of the physical class, that implements the
          * physics interface.
          */
-        class WorldPhysics : public interfaces::PhysicsInterface {
+        class WorldPhysics : public interfaces::PhysicsInterface 
+        {
         public:
             explicit WorldPhysics();
             virtual ~WorldPhysics(void) override;
@@ -79,6 +80,11 @@ namespace mars
             dReal getWorldStep(void);
             std::shared_ptr<Frame> getFrameIntern(const std::string& name);
             void createContact(dContact &c, dBodyID b1, dBodyID b2);
+
+            // --- mars::interfaces::ConfigMapInterface ---
+            virtual configmaps::ConfigMap getConfigMap() const override;
+            virtual std::vector<std::string> getEditPattern(const std::string& basePath) const override;
+            virtual void edit(const std::string& configPath, const std::string& value) override;
 
             mutable utils::Mutex iMutex;
             dReal max_angular_speed;
