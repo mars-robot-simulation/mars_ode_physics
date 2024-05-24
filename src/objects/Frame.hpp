@@ -62,8 +62,8 @@ namespace mars
             virtual void setAngularVelocity(const utils::Vector &velocity);
             void setForce(const utils::Vector &f);
             void setTorque(const utils::Vector &t);
-            void addForce(const utils::Vector &f, const utils::Vector &p);
-            void addForce(const utils::Vector &f);
+            virtual void addForce(const utils::Vector &f, const utils::Vector &p) override;
+            virtual void addForce(const utils::Vector &f) override;
             void addTorque(const utils::Vector &t);
 
             virtual void addContact(const interfaces::ContactData& contact) override;
