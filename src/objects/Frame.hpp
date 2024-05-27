@@ -55,9 +55,9 @@ namespace mars
             void getForce(utils::Vector *f) const;
             void getTorque(utils::Vector *t) const;
 
-            const utils::Vector rotateAtPoint(const utils::Vector &rotation_point,
+            virtual const utils::Vector rotateAtPoint(const utils::Vector &rotation_point,
                                               const utils::Quaternion &rotation,
-                                              bool move_group);
+                                              bool move_group) override;
             virtual void setLinearVelocity(const utils::Vector &velocity);
             virtual void setAngularVelocity(const utils::Vector &velocity);
             void setForce(const utils::Vector &f);
