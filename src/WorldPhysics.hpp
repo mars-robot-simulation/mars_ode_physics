@@ -102,7 +102,7 @@ namespace mars
             interfaces::sReal old_cfm, old_erp;
 
             std::vector<dJointFeedback*> contact_feedback_list;
-            std::map<std::string, std::shared_ptr<Frame>> frameMap;
+            std::map<std::string, std::weak_ptr<Frame>> frameMap;
             std::map<std::string, std::weak_ptr<interfaces::JointInterface>> jointMap;
 
             bool create_contacts, log_contacts;

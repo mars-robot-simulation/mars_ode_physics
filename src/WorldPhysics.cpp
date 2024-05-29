@@ -8,7 +8,7 @@
  *             aquivalent to the initialization state of the world,
  *             space and the contactgroup variables
  *
- * ToDo:
+ * TODO:
  *               - get and set the standard physical parameters
  *               - get and set the special ODE parameters via
  *                 a generic component through the Simulator class
@@ -81,7 +81,7 @@ namespace mars
             fast_step = 0;
             world_cfm = 1e-10;
             world_erp = 0.1;
-            world_gravity = Vector(0.0, 0.0, -9.81);
+            world_gravity = Vector{0.0, 0.0, -9.81};
             ground_friction = 20;
             ground_cfm = 0.00000001;
             ground_erp = 0.1;
@@ -98,7 +98,7 @@ namespace mars
             step_size = 0.01;
             // dInitODE is relevant for using trimesh objects as correct as
             // possible in the ode implementation
-            MutexLocker locker(&iMutex);
+            const MutexLocker locker{&iMutex};
             if (!odeLibIsInit)
             {
                 fprintf(stderr, "............ call dInitODE2\n");
@@ -154,7 +154,7 @@ namespace mars
          */
         void WorldPhysics::initTheWorld(void)
         {
-            MutexLocker locker(&iMutex);
+            const MutexLocker locker{&iMutex};
 
             // if world_init = true debug something
             if (!world_init)
@@ -162,8 +162,8 @@ namespace mars
                 // LOG_DEBUG("init physics world");
                 world = dWorldCreate();
 
-                dThreadingImplementationID threadingImpl = dThreadingAllocateSelfThreadedImplementation();
-                const dThreadingFunctionsInfo *functions = dThreadingImplementationGetFunctions(threadingImpl);
+                auto threadingImpl = dThreadingAllocateSelfThreadedImplementation();
+                const auto* const functions = dThreadingImplementationGetFunctions(threadingImpl);
                 dWorldSetStepThreadingImplementation(world, functions, threadingImpl);
 
                 contactgroup = dJointGroupCreate(0);
@@ -173,8 +173,8 @@ namespace mars
                 old_erp = world_erp;
 
                 dWorldSetGravity(world, world_gravity.x(), world_gravity.y(), world_gravity.z());
-                dWorldSetCFM(world, (dReal)world_cfm);
-                dWorldSetERP(world, (dReal)world_erp);
+                dWorldSetCFM(world, static_cast<dReal>(world_cfm));
+                dWorldSetERP(world, static_cast<dReal>(world_erp));
                 dWorldSetMaxAngularSpeed(world, max_angular_speed);
                 dWorldSetContactMaxCorrectingVel(world, max_correcting_vel);
 
@@ -195,7 +195,7 @@ namespace mars
          */
         void WorldPhysics::freeTheWorld(void)
         {
-            MutexLocker locker(&iMutex);
+            const MutexLocker locker{&iMutex};
             if (world_init)
             {
                 // LOG_DEBUG("free physics world");
@@ -229,7 +229,7 @@ namespace mars
             // Register schema validators for objects of this world
             for (const auto &[obj_name, _] : ObjectFactory::Instance().getAvailableObjects())
             {
-                std::string obj_schema_path = mars::utils::pathJoin(SCHEMA_PATH, "objects/" + obj_name + "_schema.yaml");
+                const auto& obj_schema_path = mars::utils::pathJoin(SCHEMA_PATH, "objects/" + obj_name + "_schema.yaml");
                 if (!mars::utils::pathExists(obj_schema_path))
                 {
                     LOG_ERROR("Missing schema file " + obj_schema_path + " for " + obj_name);
@@ -241,13 +241,13 @@ namespace mars
             // Register schema validators for joints of this world
             for (const auto &[joint_name, _] : JointFactory::Instance().getAvailableJoints())
             {
-                std::string joint_schema_path = mars::utils::pathJoin(SCHEMA_PATH, "joints/" + joint_name + "_schema.yaml");
+                const auto& joint_schema_path = mars::utils::pathJoin(SCHEMA_PATH, "joints/" + joint_name + "_schema.yaml");
                 if (!mars::utils::pathExists(joint_schema_path))
                 {
                     LOG_ERROR("Missing schema file " + joint_schema_path + " for " + joint_name);
                     continue;
                 }
-                configmaps::ConfigSchema schema(configmaps::ConfigMap::fromYamlFile(joint_schema_path));
+                const auto schema = configmaps::ConfigSchema{configmaps::ConfigMap::fromYamlFile(joint_schema_path)};
                 joints_schema[joint_name] = schema;
             }
         }
@@ -307,8 +307,7 @@ namespace mars
          */
         void WorldPhysics::stepTheWorld(void)
         {
-            MutexLocker locker(&iMutex);
-            std::vector<dJointFeedback *>::iterator iter;
+            const MutexLocker locker{&iMutex};
 
             // if world_init = false or step_size <= 0 debug something
             if (world_init && step_size > 0)
@@ -321,21 +320,24 @@ namespace mars
                 try
                 {
                     if (fast_step)
+                    {
                         dWorldQuickStep(world, step_size);
+                    }
                     else
+                    {
                         dWorldStep(world, step_size);
+                    }
 
-                    for (auto it = jointMap.begin(); it != jointMap.end();)
+                    for (auto it = jointMap.begin(); it != jointMap.end();++it)
                     {
                         if (auto joint = it->second.lock())
                         {
                             joint->update();
-                            ++it;
                         }
                         else
                         {
                             // The joint was deleted => remove it from mapping
-                            jointMap.erase(it++);
+                            jointMap.erase(it);
                         }
                     }
                 }
@@ -343,9 +345,13 @@ namespace mars
                 {
                     // TODO Check that you really need this before doing the patch
                     if (id == 3)
+                    {
                         LOG_ERROR("Problem normalizing a vector");
+                    }
                     if (id == 4)
+                    {
                         LOG_ERROR("Problem normalizing a quaternion");
+                    }
                 }
                 catch (...)
                 {
@@ -398,8 +404,10 @@ namespace mars
         {
             // ensure that bodies are not connected by joint
             if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact))
+            {
                 return;
-            dJointID joint = dJointCreateContact(world, contactgroup, &c);
+            }
+            const auto& joint = dJointCreateContact(world, contactgroup, &c);
             dJointAttach(joint, b1, b2);
         }
 
@@ -429,7 +437,7 @@ namespace mars
 
         const Vector WorldPhysics::getCenterOfMass(const std::vector<std::shared_ptr<NodeInterface>> &nodes) const
         {
-            // todo:
+            // TODO:
             // MutexLocker locker(&iMutex);
             // Vector center;
             // std::vector<std::shared_ptr<NodeInterface>>::const_iterator iter;
@@ -450,7 +458,7 @@ namespace mars
 
         std::shared_ptr<DynamicObject> WorldPhysics::createFrame(data_broker::DataBrokerInterface *dataBroker, configmaps::ConfigMap &config)
         {
-            std::shared_ptr<Frame> frame(new Frame(this, dataBroker, config));
+            auto frame = std::make_shared<Frame>(this, dataBroker, config);
             addFrame(frame);
             return frame;
         }
@@ -458,13 +466,13 @@ namespace mars
         void WorldPhysics::addFrame(std::shared_ptr<Frame> frame)
         {
             const std::string &name = frame->getName();
-            if (frameMap.find(name) == frameMap.end())
+            if (frameMap.find(name) == frameMap.end() || frameMap[name].expired())
             {
                 frameMap[name] = frame;
             }
             else
             {
-                // todo: add proper error handling
+                // TODO: add proper error handling
             }
         }
 
@@ -476,81 +484,81 @@ namespace mars
             }
             else
             {
-                // todo: add proper error handling
+                // TODO: add proper error handling
             }
         }
 
         std::shared_ptr<Frame> WorldPhysics::getFrameIntern(const std::string &name)
         {
-            auto it = frameMap.find(name);
+            const auto it = frameMap.find(name);
             if (it != frameMap.end())
             {
-                return it->second;
+                return it->second.lock();
             }
             else
             {
-                // todo: add proper error handling
+                // TODO: add proper error handling
             }
             return nullptr;
         }
 
         std::shared_ptr<DynamicObject> WorldPhysics::getFrame(const std::string &name)
         {
-            std::shared_ptr<Frame> frame = getFrameIntern(name);
+            const auto& frame = getFrameIntern(name);
             if (frame)
             {
                 return frame;
             }
             else
             {
-                // todo: add proper error handling
+                // TODO: add proper error handling
             }
             return nullptr;
         }
 
         void WorldPhysics::createObject(configmaps::ConfigMap &config)
         {
-            std::string type = config["type"];
+            const auto& type = config["type"].toString();
             if (!objects_schema.count(type))
             {
-                const std::string errmsg = "WorldPhysics::createObject: could not create object " + type + ": missing schema file.";
+                const auto errmsg = std::string{"WorldPhysics::createObject: could not create object " + type + ": missing schema file."};
                 LOG_ERROR("%s", errmsg.c_str());
-                throw std::runtime_error(errmsg);
+                throw std::runtime_error{errmsg};
             }
             if (!objects_schema[type].validate(config))
             {
-                const std::string errmsg = "WorldPhysics::createObject: could not create object " + type + ": invalid config.";
+                const auto errmsg = std::string{"WorldPhysics::createObject: could not create object " + type + ": invalid config."};
                 LOG_ERROR("%s", errmsg.c_str());
-                throw std::runtime_error(errmsg);
+                throw std::runtime_error{errmsg};
             }
-            std::shared_ptr<Frame> frame = getFrameIntern(config["parentFrame"]);
+            const auto& frame = getFrameIntern(config["parentFrame"]);
             if(frame == nullptr)
             {
-                const std::string errmsg = "WorldPhysics::createObject: could not create object " + type + ": missing frame: " + config["parentFrame"].toString() + ".";
+                const auto errmsg = std::string{"WorldPhysics::createObject: could not create object " + type + ": missing frame: " + config["parentFrame"].toString() + "."};
                 LOG_ERROR("%s", errmsg.c_str());
-                throw std::runtime_error(errmsg);
+                throw std::runtime_error{errmsg};
             }
-            // todo: if frame not found return error
+            // TODO: if frame not found return error
             ObjectFactory::Instance().createObject(frame, type, config);
         }
 
         std::shared_ptr<JointInterface> WorldPhysics::createJoint(data_broker::DataBrokerInterface *dataBroker, configmaps::ConfigMap &config)
         {
-            std::string name = config["name"];
-            std::string type = config["type"];
+            const auto& name = config["name"].toString();
+            const auto& type = config["type"].toString();
             if (!joints_schema.count(type))
             {
-                const std::string errmsg = "WorldPhysics::createJoint: could not create joint " + type + ": missing schema file.";
+                const auto errmsg = std::string{"WorldPhysics::createJoint: could not create joint " + type + ": missing schema file."};
                 LOG_ERROR("%s", errmsg.c_str());
-                throw std::runtime_error(errmsg);
+                throw std::runtime_error{errmsg};
             }
             if (!joints_schema[type].validate(config))
             {
-                const std::string errmsg = "WorldPhysics::createJoint: could not create joint " + type + ": invalid config.";
+                const auto errmsg = std::string{"WorldPhysics::createJoint: could not create joint " + type + ": invalid config."};
                 LOG_ERROR("%s", errmsg.c_str());
-                throw std::runtime_error(errmsg);
+                throw std::runtime_error{errmsg};
             }
-            std::shared_ptr<Joint> newJoint = JointFactory::Instance().createJoint(this, dataBroker, config);
+            auto newJoint = JointFactory::Instance().createJoint(this, dataBroker, config);
             jointMap[name] = newJoint;
             return newJoint;
             // newJoint->setVelocity(0);
@@ -559,7 +567,7 @@ namespace mars
 
         std::shared_ptr<JointInterface> WorldPhysics::getJoint(std::string name)
         {
-            auto it = jointMap.find(name);
+            const auto& it = jointMap.find(name);
             if (it != jointMap.end())
             {
                 return it->second.lock();
