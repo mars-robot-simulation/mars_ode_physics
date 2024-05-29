@@ -118,7 +118,7 @@ namespace mars
          */
         Joint::~Joint(void)
         {
-            MutexLocker locker(&(theWorld->iMutex));
+            const MutexLocker locker{&(theWorld->iMutex)};
             if (jointId)
             {
                 dJointDestroy(jointId);

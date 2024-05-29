@@ -116,9 +116,12 @@ namespace mars
         Frame::~Frame(void)
         {
             //std::vector<sensor_list_element>::iterator iter;
-            MutexLocker locker(&(theWorld->iMutex));
+            const MutexLocker locker{&(theWorld->iMutex)};
 
-            if(nBody) dBodyDestroy(nBody);
+            if(nBody)
+            {
+                dBodyDestroy(nBody);
+            }
 
             // TODO: how does this loop work? why doesn't it run forever?
             // for(iter = sensor_list.begin(); iter != sensor_list.end();) {
@@ -142,7 +145,8 @@ namespace mars
             if(it != objects.end())
             {
                 // todo: add proper error handling
-            } else
+            }
+            else
             {
                 objects.push_back(object);
                 if(nBody == NULL)
