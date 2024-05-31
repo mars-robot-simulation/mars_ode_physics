@@ -123,6 +123,7 @@ namespace mars
             {
                 dJointDestroy(jointId);
             }
+            removeFromDataBroker();
         }
 
         void Joint::getName(std::string *name) const

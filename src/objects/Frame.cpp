@@ -122,6 +122,7 @@ namespace mars
             {
                 dBodyDestroy(nBody);
             }
+            removeFromDataBroker();
 
             // TODO: how does this loop work? why doesn't it run forever?
             // for(iter = sensor_list.begin(); iter != sensor_list.end();) {
