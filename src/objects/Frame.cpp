@@ -48,7 +48,7 @@ namespace mars
 
             offsetPos = Vector(0, 0, 0);
             name << config["name"];
-            pushToDataBroker = 2; // push all data todo: use enum
+            pushToDataBroker = 2; // push all data TODO: use enum
             if(config.hasKey("pushToDataBroker"))
             {
                 pushToDataBroker = config["pushToDataBroker"];
@@ -60,8 +60,8 @@ namespace mars
                 pushToDataBroker = 1;
             }
 
-            // todo: give config to odeFrame to allow to configure pushToDataBroker
-            // todo: move this setup to method so that it can changed/reconfigured online
+            // TODO: give config to odeFrame to allow to configure pushToDataBroker
+            // TODO: move this setup to method so that it can changed/reconfigured online
             if(pushToDataBroker > 0)
             {
                 //dbPackageMapping.add("id", &sNode.index);
@@ -145,7 +145,7 @@ namespace mars
             std::vector<Object*>::iterator it = std::find(objects.begin(), objects.end(), object);
             if(it != objects.end())
             {
-                // todo: add proper error handling
+                // TODO: add proper error handling
             }
             else
             {
@@ -161,7 +161,7 @@ namespace mars
                     tmp[0] = (dReal)q.w();
                     dBodySetQuaternion(nBody, tmp);
                 }
-                // todo: add object inertial to nBody
+                // TODO: add object inertial to nBody
                 addObjectMass(object);
             }
         }
@@ -177,7 +177,7 @@ namespace mars
                 if(*it == object)
                 {
                     objects.erase(it);
-                    // todo: remove inertial from nMass
+                    // TODO: remove inertial from nMass
                     break;
                 }
             }
@@ -502,7 +502,7 @@ namespace mars
                 dBodySetQuaternion(nBody, tmp);
             }
 
-            // todo: check if tmp or tmp2 have to be inverted
+            // TODO: check if tmp or tmp2 have to be inverted
             dQMultiply2(tmp3, tmp, tmp2);
             q2.x() = (sReal)tmp3[1];
             q2.y() = (sReal)tmp3[2];
@@ -588,7 +588,7 @@ namespace mars
             npos.z() = new_pos[2] + (dReal)rotation_point.z();
             dBodySetPosition(nBody, (dReal)npos.x(), (dReal)npos.y(), (dReal)npos.z());
 
-            // todo: check what this function should do and correct the code
+            // TODO: check what this function should do and correct the code
             return npos;
         }
 
@@ -743,7 +743,7 @@ namespace mars
 
 
             // we create a position offset due to center of masses
-            // todo: find a better solution for this issue
+            // TODO: find a better solution for this issue
             // the offset is in bodyframe
             offsetPos.x() += nMass.c[0];
             offsetPos.y() += nMass.c[1];
@@ -865,7 +865,7 @@ namespace mars
 
         void Frame::addContact(const ContactData& contact)
         {
-            // todo: create contact joint
+            // TODO: create contact joint
             // get second body:
             dBodyID nBody2 = 0;
             double invert = 1.0;
