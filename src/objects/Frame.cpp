@@ -871,17 +871,17 @@ namespace mars
             double invert = 1.0;
             if(contact.body2)
             {
-                Frame *frame2 = (Frame*)contact.body2.get();
+                const auto* frame2 = static_cast<const Frame*>(contact.body2.get());
                 // we don't know if this is body1 or body2 in the contact
                 if(frame2 == this)
                 {
-                    frame2 = (Frame*)contact.body1.get();
+                    frame2 = static_cast<const Frame*>(contact.body1.get());
                     invert = -1.0;
                 }
                 if(frame2)
                 {
                     // check if the other frame is part of this physics world
-                    std::shared_ptr<DynamicObject> test = theWorld->getFrame(frame2->getName());
+                    const auto& test = theWorld->getFrame(frame2->getName());
                     if(test)
                     {
                         nBody2 = frame2->getBody();
