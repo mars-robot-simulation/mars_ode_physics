@@ -890,7 +890,7 @@ namespace mars
             }
             dContact c;
             // transfer contact parameters to ode contact information
-            // todo: allow to transfer dContact via Contact data directly
+            // TODO: allow to transfer dContact via Contact data directly
             c.geom.pos[0] = contact.pos.x();
             c.geom.pos[1] = contact.pos.y();
             c.geom.pos[2] = contact.pos.z();
@@ -900,14 +900,26 @@ namespace mars
             // fprintf(stderr, "at: %g %g %g\n", c.geom.pos[0], c.geom.pos[1], c.geom.pos[2]);
             // fprintf(stderr, "n: %g %g %g\n", c.geom.normal[0], c.geom.normal[1], c.geom.normal[2]);
             // fprintf(stderr, "with: %g\n", c.geom.depth);
-            // todo: generate and transfer all possible data
+            // TODO: generate and transfer all possible data
             c.geom.depth = contact.depth;
+
             c.surface.mode = dContactSoftERP | dContactSoftCFM;
-            c.surface.soft_cfm = 0.000001;
-            c.surface.soft_erp = 0.2;
             c.surface.mode |= dContactApprox1;
-            c.surface.mu = 0.8;
-            c.surface.mu2 = 0.8;
+            c.surface.mu = contact.c_params.friction1;
+            c.surface.mu2 = contact.c_params.friction2;
+            c.surface.rho = contact.c_params.rolling_friction;
+            c.surface.rho2 = contact.c_params.rolling_friction2;
+            c.surface.rhoN = contact.c_params.spinning_friction;
+            c.surface.bounce = contact.c_params.bounce;
+            c.surface.bounce_vel = contact.c_params.bounce_vel;
+            c.surface.soft_cfm = contact.c_params.cfm;
+            c.surface.soft_erp = contact.c_params.erp;
+            c.surface.motion1 = contact.c_params.motion1;
+            c.surface.motion2 = contact.c_params.motion2;
+            // TODO: c.surface.motionN = ???
+            // TODO: c.surface.slip1 = ??? fds1?
+            // TODO: c.surface.slip2 = ??? fds2?
+
             if(c.surface.mu != c.surface.mu2)
             {
                 c.surface.mode |= dContactMu2;
