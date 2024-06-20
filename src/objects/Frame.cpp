@@ -944,7 +944,7 @@ namespace mars
         {
             for(auto& frame: connectedFrames)
             {
-                if(frame == linked)
+                if(frame.lock() == linked)
                 {
                     return true;
                 }
@@ -954,7 +954,15 @@ namespace mars
 
         std::vector<std::shared_ptr<DynamicObject>> Frame::getLinkedFrames(void)
         {
-            return connectedFrames;
+            auto result = std::vector<std::shared_ptr<DynamicObject>>{};
+            for(const auto& linkedFrame : connectedFrames)
+            {
+                if (const auto validFrame = linkedFrame.lock())
+                {
+                    result.push_back(validFrame);
+                }
+            }
+            return result;
         }
 
         configmaps::ConfigMap Frame::getConfigMap() const
@@ -974,9 +982,12 @@ namespace mars
             configmaps::ConfigVector linkedFramesItem;
             for (const auto& linkedFrame : connectedFrames)
             {
-                configmaps::ConfigItem frameItem;
-                frameItem = linkedFrame->getName();
-                linkedFramesItem.append(frameItem);
+                if (const auto validFrame = linkedFrame.lock())
+                {
+                    configmaps::ConfigItem frameItem;
+                    frameItem = validFrame->getName();
+                    linkedFramesItem.append(frameItem);
+                }
             }
             result["linked frames"] = linkedFramesItem;
 

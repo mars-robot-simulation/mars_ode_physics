@@ -98,7 +98,7 @@ namespace mars
             int pushToDataBroker;
             data_broker::DataPackageMapping dbPackageMapping;
             bool object_created;
-            std::vector<std::shared_ptr<DynamicObject>> connectedFrames;
+            std::vector<std::weak_ptr<DynamicObject>> connectedFrames;
             utils::Vector offsetPos;
 
             void addToDataBroker();
