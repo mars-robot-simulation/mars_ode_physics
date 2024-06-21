@@ -59,12 +59,12 @@ namespace mars
             //std::vector<sensor_list_element>::iterator iter;
             //MutexLocker locker(&(theWorld->iMutex));
 
-            // todo: remove object from frame?
+            // TODO: remove object from frame?
         }
 
         void Object::getPosition(Vector* pos) const
         {
-            // todo: position is defined by frame position
+            // TODO: position is defined by frame position
             // local position and rotation should store offsets
             //MutexLocker locker(&(theWorld->iMutex));
             *pos = this->pos;
@@ -90,7 +90,7 @@ namespace mars
          */
         const Vector Object::setPosition(const Vector &pos, bool move_group)
         {
-            // todo: update the position of the frame or center of mass of this object in the frame
+            // TODO: update the position of the frame or center of mass of this object in the frame
             this->pos = pos;
             return Vector();
         }
@@ -112,7 +112,7 @@ namespace mars
          */
         void Object::getRotation(Quaternion* q) const
         {
-            // todo: see above
+            // TODO: see above
             *q = this->q;
         }
 
@@ -133,7 +133,7 @@ namespace mars
          */
         void Object::getLinearVelocity(Vector* vel) const
         {
-            // todo
+            // TODO
         }
 
         /**
@@ -153,7 +153,7 @@ namespace mars
          */
         void Object::getAngularVelocity(Vector* vel) const
         {
-            // todo
+            // TODO
         }
 
         /**
@@ -173,7 +173,7 @@ namespace mars
          */
         void Object::getForce(Vector* f) const
         {
-            // todo
+            // TODO
         }
 
         /**
@@ -193,7 +193,7 @@ namespace mars
          */
         void Object::getTorque(Vector *t) const
         {
-            // todo
+            // TODO
         }
 
 
@@ -206,7 +206,7 @@ namespace mars
          */
         const Quaternion Object::setRotation(const Quaternion &q, bool move_group)
         {
-            // todo
+            // TODO
             this->q = q;
             return Quaternion();
         }
@@ -225,7 +225,7 @@ namespace mars
                                            const Quaternion &rotation,
                                            bool move_group)
         {
-            // todo
+            // TODO
             return Vector();
         }
 
@@ -253,8 +253,11 @@ namespace mars
          */
         void Object::setLinearVelocity(const Vector &velocity)
         {
-            // todo
-            frame->setLinearVelocity(velocity);
+            // TODO: What if invalid?
+            if(auto validFrame = frame.lock())
+            {
+                validFrame->setLinearVelocity(velocity);
+            }
         }
 
         /**
@@ -268,7 +271,7 @@ namespace mars
          */
         void Object::setAngularVelocity(const Vector &velocity)
         {
-            // todo
+            // TODO
             //MutexLocker locker(&(theWorld->iMutex));
         }
 
@@ -283,7 +286,7 @@ namespace mars
          */
         void Object::setForce(const Vector &f)
         {
-            // todo
+            // TODO
             //MutexLocker locker(&(theWorld->iMutex));
         }
 
@@ -298,7 +301,7 @@ namespace mars
          */
         void Object::setTorque(const Vector &t)
         {
-            // todo
+            // TODO
             //MutexLocker locker(&(theWorld->iMutex));
         }
 
@@ -313,7 +316,7 @@ namespace mars
          */
         void Object::addForce(const Vector &f, const Vector &p)
         {
-            // todo
+            // TODO
             //MutexLocker locker(&(theWorld->iMutex));
         }
         /**
@@ -327,7 +330,7 @@ namespace mars
          */
         void Object::addForce(const Vector &f)
         {
-            // todo
+            // TODO
             //MutexLocker locker(&(theWorld->iMutex));
         }
 
@@ -342,14 +345,14 @@ namespace mars
          */
         void Object::addTorque(const Vector &t)
         {
-            // todo
+            // TODO
             //MutexLocker locker(&(theWorld->iMutex));
         }
 
 
         void Object::getAbsMass(dMass *tMass) const
         {
-            // todo
+            // TODO
             // no lock because physics internal functions get locked elsewhere
             // const dReal *pos = dGeomGetPosition(nGeom);
             // const dReal *rot = dGeomGetRotation(nGeom);

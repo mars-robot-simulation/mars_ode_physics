@@ -56,7 +56,7 @@ namespace mars
                 return objectCreated;
             }
         protected:
-            std::shared_ptr<Frame> frame;
+            std::weak_ptr<Frame> frame;
             // transform is always relative to frame transformation
             utils::Vector pos;
             utils::Quaternion q;

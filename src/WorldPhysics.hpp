@@ -92,7 +92,6 @@ namespace mars
 
             static interfaces::PhysicsError error;
             static bool odeLibIsInit;
-
         private:
             utils::Mutex drawLock;
             dWorldID world;
@@ -104,6 +103,8 @@ namespace mars
             std::vector<dJointFeedback*> contact_feedback_list;
             std::map<std::string, std::weak_ptr<Frame>> frameMap;
             std::map<std::string, std::weak_ptr<interfaces::JointInterface>> jointMap;
+            std::vector<Object*> objects;
+            void clearObjects();
 
             bool create_contacts, log_contacts;
             int num_contacts;
