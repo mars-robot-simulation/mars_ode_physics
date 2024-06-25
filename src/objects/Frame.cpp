@@ -12,8 +12,7 @@
 #include <ode/odemath.h>
 
 #include <iostream>
-
-
+using namespace configmaps;
 namespace mars
 {
     namespace ode_physics
