@@ -50,8 +50,13 @@ namespace mars
             }
             // dMassSetBoxTotal(&nMass, (dReal)(config["mass"]), 0.1, 0.1, 0.1);
 
-            // todo: add mass to frame
-            frame->addObject(this);
+            // TODO: add mass to frame
+            if (auto validFrame = frame.lock())
+            {
+                validFrame->addObject(this);
+            }
+
+            // TODO: Handle invalid frame?
             objectCreated = true;
             return true;
         }

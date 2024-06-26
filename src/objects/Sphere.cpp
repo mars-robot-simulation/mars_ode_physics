@@ -38,8 +38,13 @@ namespace mars
             dMassSetSphere(&nMass, density, radius);
             dMassSetSphereTotal(&nMass, mass, radius);
 
-            // todo: add mass to frame
-            frame->addObject(this);
+            // TODO: Add mass to frame
+            if (auto validFrame = frame.lock())
+            {
+                validFrame->addObject(this);
+            }
+
+            // TODO: Handle invalid frame?
             objectCreated = true;
             return true;
         } 

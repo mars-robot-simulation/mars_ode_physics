@@ -39,7 +39,12 @@ namespace mars
             dMassSetBox(&nMass, density, x, y, z);
             dMassSetBoxTotal(&nMass, mass,  x, y, z);
 
-            frame->addObject(this);
+            if (auto validFrame = frame.lock())
+            {
+                validFrame->addObject(this);
+            }
+
+            // TODO: Handle invalid frame?
             objectCreated = true;
             return true;
         }

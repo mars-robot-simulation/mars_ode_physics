@@ -40,7 +40,12 @@ namespace mars
             dMassSetCylinder(&nMass, density, 3, radius, length);
             dMassSetCylinderTotal(&nMass, mass, 3, radius, length);
 
-            frame->addObject(this);
+            if (auto validFrame = frame.lock())
+            {
+                validFrame->addObject(this);
+            }
+
+            // TODO: Handle invalid frame?
             objectCreated = true;
             return true;
         }

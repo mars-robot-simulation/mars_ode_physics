@@ -195,6 +195,7 @@ namespace mars
          */
         void WorldPhysics::freeTheWorld(void)
         {
+            clearObjects();
             const MutexLocker locker{&iMutex};
             if (world_init)
             {
@@ -539,7 +540,11 @@ namespace mars
                 throw std::runtime_error{errmsg};
             }
             // TODO: if frame not found return error
-            ObjectFactory::Instance().createObject(frame, type, config);
+            auto newObject = ObjectFactory::Instance().createObject(frame, type, config);
+            if (newObject)
+            {
+                objects.push_back(newObject);
+            }
         }
 
         std::shared_ptr<JointInterface> WorldPhysics::createJoint(data_broker::DataBrokerInterface *dataBroker, configmaps::ConfigMap &config)
@@ -573,6 +578,16 @@ namespace mars
                 return it->second.lock();
             }
             return nullptr;
+        }
+
+        void WorldPhysics::clearObjects()
+        {
+            const MutexLocker locker{&iMutex};
+            for (auto object : objects)
+            {
+                delete object;
+            }
+            objects.clear();
         }
 
     } // end of namespace ode_physics

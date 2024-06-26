@@ -12,8 +12,7 @@
 #include <ode/odemath.h>
 
 #include <iostream>
-
-
+using namespace configmaps;
 namespace mars
 {
     namespace ode_physics
@@ -490,24 +489,51 @@ namespace mars
             tmp[0] = (dReal)q.w();
             if(nBody)
             {
+                dReal tpos[3], new_pos[3];
+                dReal massOffset[3];
+                massOffset[0] = offsetPos.x();
+                massOffset[1] = offsetPos.y();
+                massOffset[2] = offsetPos.z();
+
+                // the mass displacement is in bodyframe
+                // to get the displacement in world coordinates
+                // we have to rotate the vector
+                dMatrix3 R;
+                const dReal *brot = dBodyGetQuaternion(nBody);
+                // we need the inverse of the body rotation
+                dRfromQ(R, brot);
+                // massOffset in world frame of old rotation
+                dMULTIPLY0_331(tpos, R, massOffset);
+                // tpos is massOffset in world
+
                 bpos = dBodyGetPosition(nBody);
-                pos[0] = bpos[0];
-                pos[1] = bpos[1];
-                pos[2] = bpos[2];
-                brot = dBodyGetQuaternion(nBody);
-                tmp2[0] = brot[0];
-                tmp2[1] = brot[1];
-                tmp2[2] = brot[2];
-                tmp2[3] = brot[3];
+                // reference body position: rotation_point
+                new_pos[0] = bpos[0]-tpos[0];
+                new_pos[1] = bpos[1]-tpos[1];
+                new_pos[2] = bpos[2]-tpos[2];
+
+                // bpos+tpos is current position in world
+                // bpos is rotation position in world
+                // now we want to remove brot_old and apply brot_new
+                dQtoR(tmp, R);
+                // massOffset in world frame with new rotation
+                dMULTIPLY0_331(tpos, R, massOffset);
+
+                new_pos[0] += tpos[0];
+                new_pos[1] += tpos[1];
+                new_pos[2] += tpos[2];
+                dBodySetPosition(nBody, new_pos[0], new_pos[1], new_pos[2]);
+
                 dBodySetQuaternion(nBody, tmp);
             }
 
             // TODO: check if tmp or tmp2 have to be inverted
-            dQMultiply2(tmp3, tmp, tmp2);
-            q2.x() = (sReal)tmp3[1];
-            q2.y() = (sReal)tmp3[2];
-            q2.z() = (sReal)tmp3[3];
-            q2.w() = (sReal)tmp3[0];
+            // only needed if we have to return the offset rotation
+            // dQMultiply2(tmp3, tmp, tmp2);
+            // q2.x() = (sReal)tmp3[1];
+            // q2.y() = (sReal)tmp3[2];
+            // q2.z() = (sReal)tmp3[3];
+            // q2.w() = (sReal)tmp3[0];
         }
 
         // /**
@@ -944,7 +970,7 @@ namespace mars
         {
             for(auto& frame: connectedFrames)
             {
-                if(frame == linked)
+                if(frame.lock() == linked)
                 {
                     return true;
                 }
@@ -954,7 +980,15 @@ namespace mars
 
         std::vector<std::shared_ptr<DynamicObject>> Frame::getLinkedFrames(void)
         {
-            return connectedFrames;
+            auto result = std::vector<std::shared_ptr<DynamicObject>>{};
+            for(const auto& linkedFrame : connectedFrames)
+            {
+                if (const auto validFrame = linkedFrame.lock())
+                {
+                    result.push_back(validFrame);
+                }
+            }
+            return result;
         }
 
         configmaps::ConfigMap Frame::getConfigMap() const
@@ -974,9 +1008,12 @@ namespace mars
             configmaps::ConfigVector linkedFramesItem;
             for (const auto& linkedFrame : connectedFrames)
             {
-                configmaps::ConfigItem frameItem;
-                frameItem = linkedFrame->getName();
-                linkedFramesItem.append(frameItem);
+                if (const auto validFrame = linkedFrame.lock())
+                {
+                    configmaps::ConfigItem frameItem;
+                    frameItem = validFrame->getName();
+                    linkedFramesItem.append(frameItem);
+                }
             }
             result["linked frames"] = linkedFramesItem;
 
