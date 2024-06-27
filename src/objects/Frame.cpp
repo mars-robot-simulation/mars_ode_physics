@@ -165,7 +165,7 @@ namespace mars
             return contactForceVector;
         }
 
-        const dReal& Frame::getContactForce() const
+        const sReal& Frame::getContactForce() const
         {
             return contactForce;
         }

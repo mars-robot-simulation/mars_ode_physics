@@ -41,7 +41,7 @@ namespace mars
             virtual const std::string& getName() const override;
 
             const utils::Vector& getContactForceVector() const;
-            const dReal& getContactForce() const;
+            const interfaces::sReal& getContactForce() const;
             void computeContactForce();
             void clearContactData();
 
@@ -107,7 +107,7 @@ namespace mars
             utils::Vector offsetPos;
             utils::Vector contactForceVector;
             std::vector<utils::Vector> contactForceVectors;
-            dReal contactForce;
+            interfaces::sReal contactForce;
 
             void addToDataBroker();
             void removeFromDataBroker();
