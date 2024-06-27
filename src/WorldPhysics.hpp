@@ -79,7 +79,8 @@ namespace mars
             dWorldID getWorld(void) const;
             dReal getWorldStep(void);
             std::shared_ptr<Frame> getFrameIntern(const std::string& name);
-            void createContact(dContact &c, dBodyID b1, dBodyID b2);
+            const dJointID createContact(dContact &c, dBodyID b1, dBodyID b2);
+            void computeContactForces();
 
             // --- mars::interfaces::ConfigMapInterface ---
             virtual configmaps::ConfigMap getConfigMap() const override;

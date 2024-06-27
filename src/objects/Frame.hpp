@@ -40,6 +40,11 @@ namespace mars
 
             virtual const std::string& getName() const override;
 
+            const utils::Vector& getContactForceVector() const;
+            const interfaces::sReal& getContactForce() const;
+            void computeContactForce();
+            void clearContactData();
+
             virtual void getPosition(utils::Vector *pos) const override;
             virtual void setPosition(const utils::Vector &pos) override;
             virtual void getRotation(utils::Quaternion *q) const override;
@@ -54,7 +59,7 @@ namespace mars
             void getAngularVelocity(utils::Vector *vel) const;
             void getForce(utils::Vector *f) const;
             void getTorque(utils::Vector *t) const;
-
+    
             virtual const utils::Vector rotateAtPoint(const utils::Vector &rotation_point,
                                               const utils::Quaternion &rotation,
                                               bool move_group) override;
@@ -77,7 +82,7 @@ namespace mars
             void addObjectMass(Object *object);
 
             void updateState();
-
+            
             // --- mars::interfaces::ConfigMapInterface ---
             virtual configmaps::ConfigMap getConfigMap() const override;
             virtual std::vector<std::string> getEditPattern(const std::string& basePath) const override;
@@ -100,6 +105,9 @@ namespace mars
             bool object_created;
             std::vector<std::weak_ptr<DynamicObject>> connectedFrames;
             utils::Vector offsetPos;
+            utils::Vector contactForceVector;
+            std::vector<utils::Vector> contactForceVectors;
+            interfaces::sReal contactForce;
 
             void addToDataBroker();
             void removeFromDataBroker();

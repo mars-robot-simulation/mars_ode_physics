@@ -8,6 +8,8 @@
 
 #include <cmath>
 #include <set>
+#include <cstdlib>
+#include <stdexcept> 
 
 #include <ode/odemath.h>
 
@@ -44,6 +46,8 @@ namespace mars
             theWorld = dynamic_cast<WorldPhysics*>(world);
             nBody = 0;
             dMassSetZero(&nMass);
+            contactForce = 0;
+            contactForceVector = {0,0,0};
 
             offsetPos = Vector(0, 0, 0);
             name << config["name"];
@@ -72,7 +76,7 @@ namespace mars
                 dbPackageMapping.add("rotation/z", &q.z());
                 dbPackageMapping.add("rotation/w", &q.w());
                 //dbPackageMapping.add("contact", &ground_contact);
-                //dbPackageMapping.add("contactForce", &ground_contact_force);
+                dbPackageMapping.add("contactForce/norm", &contactForce);
             }
             if(pushToDataBroker > 1)
             {
@@ -94,6 +98,9 @@ namespace mars
                 dbPackageMapping.add("torque/x", &torque.x());
                 dbPackageMapping.add("torque/y", &torque.y());
                 dbPackageMapping.add("torque/z", &torque.z());
+                dbPackageMapping.add("contactForce/x", &contactForceVector.x());
+                dbPackageMapping.add("contactForce/y", &contactForceVector.y());
+                dbPackageMapping.add("contactForce/z", &contactForceVector.z());                
             }
             if(pushToDataBroker > 0)
             {
@@ -137,6 +144,30 @@ namespace mars
         const std::string& Frame::getName() const
         {
             return name;
+        }
+
+        void Frame::computeContactForce()
+        {
+            utils::Vector resultantForce = {0,0,0};
+
+            for (const auto& cf : contactForceVectors){
+                resultantForce.x() += cf.x();
+                resultantForce.y() += cf.y();
+                resultantForce.z() += cf.z();
+            }
+            
+            contactForceVector = resultantForce;
+            contactForce = contactForceVector.norm();
+        }
+
+        const utils::Vector& Frame::getContactForceVector() const
+        {
+            return contactForceVector;
+        }
+
+        const sReal& Frame::getContactForce() const
+        {
+            return contactForce;
         }
 
         void Frame::addObject(Object *object)
@@ -850,6 +881,13 @@ namespace mars
             }
         }
 
+        void Frame::clearContactData()
+        {
+            contactForceVectors.clear();
+            contactForceVector = {0,0,0};
+            contactForce = 0.0;
+        }
+
         // ## DataBroker methods ##
         void Frame::addToDataBroker()
         {
@@ -894,7 +932,8 @@ namespace mars
             // TODO: create contact joint
             // get second body:
             dBodyID nBody2 = 0;
-            double invert = 1.0;
+            double invert = 1.0;                    
+            
             if(contact.body2)
             {
                 const auto* frame2 = static_cast<const Frame*>(contact.body2.get());
@@ -951,14 +990,24 @@ namespace mars
                 c.surface.mode |= dContactMu2;
             }
 
-            theWorld->createContact(c, nBody, nBody2);
-            //  if(geom_data2->sense_contact_force) {
-            //      fb = (dJointFeedback*)malloc(sizeof(dJointFeedback));
-            //      dJointSetFeedback(c, fb);
-            //      contact_feedback_list.push_back(fb);
-            //      geom_data2->ground_feedbacks.push_back(fb);
-            //      geom_data2->node1 = false;
-            //  }
+            dJointID contactJoint = theWorld->createContact(c, nBody, nBody2);
+
+            if(!contactJoint){
+                LOG_WARN("Failed to create contact for (%s) because there was already a joint between the two bodies", this->getName().c_str());
+                return;
+            }
+
+            dJointFeedback* fb = (dJointFeedback*)malloc(sizeof(dJointFeedback));
+            if (fb == nullptr) {
+                // Handle memory allocation failure
+                throw std::bad_alloc();
+            }
+
+            dJointSetFeedback(contactJoint, fb);
+
+            utils::Vector contactForceVector = {fb->f1[0], fb->f1[1], fb->f1[2]};
+            contactForceVectors.push_back(contactForceVector);
+            free(fb);
         }
 
         void Frame::addLinkedFrame(std::shared_ptr<DynamicObject> linked)
