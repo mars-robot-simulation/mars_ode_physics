@@ -292,6 +292,23 @@ namespace mars
         {
             // Clear contacts
             dJointGroupEmpty(contactgroup);
+
+            for (auto& pair : frameMap) {
+                std::shared_ptr<Frame> framePtr = pair.second.lock();                
+                if (framePtr) {
+                    framePtr->clearContactData();
+                } 
+            }         
+        }
+
+        void WorldPhysics::computeContactForces()
+        {
+            for (auto& pair : frameMap) {
+                std::shared_ptr<Frame> framePtr = pair.second.lock();                
+                if (framePtr) {
+                    framePtr->computeContactForce();
+                } 
+            } 
         }
 
         /**
@@ -341,6 +358,7 @@ namespace mars
                             jointMap.erase(it);
                         }
                     }
+                    computeContactForces();
                 }
                 catch (int id)
                 {
@@ -401,15 +419,16 @@ namespace mars
             return step_size;
         }
 
-        void WorldPhysics::createContact(dContact &c, dBodyID b1, dBodyID b2)
+        const dJointID WorldPhysics::createContact(dContact &c, dBodyID b1, dBodyID b2)
         {
             // ensure that bodies are not connected by joint
             if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact))
             {
-                return;
+                return nullptr;
             }
             const auto& joint = dJointCreateContact(world, contactgroup, &c);
             dJointAttach(joint, b1, b2);
+            return joint;
         }
 
         configmaps::ConfigMap WorldPhysics::getConfigMap() const
