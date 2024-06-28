@@ -41,7 +41,8 @@ namespace mars
                      data_broker::DataBrokerInterface *dataBroker,
                      ConfigMap &config) : dataBroker(dataBroker),
                                           position(0.0, 0.0, 0.0),
-                                          q(1.0, 0.0, 0.0, 0.0)
+                                          q(1.0, 0.0, 0.0, 0.0),
+                                          ground_contact{false}
         {
             theWorld = dynamic_cast<WorldPhysics*>(world);
             nBody = 0;
@@ -75,7 +76,7 @@ namespace mars
                 dbPackageMapping.add("rotation/y", &q.y());
                 dbPackageMapping.add("rotation/z", &q.z());
                 dbPackageMapping.add("rotation/w", &q.w());
-                //dbPackageMapping.add("contact", &ground_contact);
+                dbPackageMapping.add("contact", &ground_contact);
                 dbPackageMapping.add("contactForce/norm", &contactForce);
             }
             if(pushToDataBroker > 1)
@@ -172,7 +173,7 @@ namespace mars
 
         void Frame::addObject(Object *object)
         {
-            std::vector<Object*>::iterator it = std::find(objects.begin(), objects.end(), object);
+            auto it = std::find(objects.begin(), objects.end(), object);
             if(it != objects.end())
             {
                 // TODO: add proper error handling
@@ -202,7 +203,7 @@ namespace mars
             MutexLocker locker(&(theWorld->iMutex));
             // if this is only object: destroy nBody
             // otherwise remove object mass/interia from nBody
-            for(std::vector<Object*>::iterator it=objects.begin(); it!=objects.end(); ++it)
+            for(auto it=objects.begin(); it!=objects.end(); ++it)
             {
                 if(*it == object)
                 {
@@ -887,6 +888,7 @@ namespace mars
             {
                 delete jointFeedback;
             }
+            ground_contact = false;
             jointFeedbacks.clear();
             contactForceVector = {0,0,0};
             contactForce = 0.0;
@@ -936,8 +938,8 @@ namespace mars
             // TODO: create contact joint
             // get second body:
             dBodyID nBody2 = 0;
-            double invert = 1.0;                    
-            
+            double invert = 1.0;
+
             if(contact.body2)
             {
                 const auto* frame2 = static_cast<const Frame*>(contact.body2.get());
@@ -957,6 +959,7 @@ namespace mars
                     }
                 }
             }
+
             dContact c;
             // transfer contact parameters to ode contact information
             // TODO: allow to transfer dContact via Contact data directly
@@ -1004,6 +1007,7 @@ namespace mars
             auto* const fb = new dJointFeedback{};
             dJointSetFeedback(contactJoint, fb);
             jointFeedbacks.push_back(fb);
+            ground_contact = true;
         }
 
         void Frame::addLinkedFrame(std::shared_ptr<DynamicObject> linked)

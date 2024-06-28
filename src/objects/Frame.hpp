@@ -105,6 +105,7 @@ namespace mars
             bool object_created;
             std::vector<std::weak_ptr<DynamicObject>> connectedFrames;
             utils::Vector offsetPos;
+            bool ground_contact;
             std::vector<dJointFeedback*> jointFeedbacks;
             utils::Vector contactForceVector;
             interfaces::sReal contactForce;
