@@ -105,8 +105,8 @@ namespace mars
             bool object_created;
             std::vector<std::weak_ptr<DynamicObject>> connectedFrames;
             utils::Vector offsetPos;
+            std::vector<dJointFeedback*> jointFeedbacks;
             utils::Vector contactForceVector;
-            std::vector<utils::Vector> contactForceVectors;
             interfaces::sReal contactForce;
 
             void addToDataBroker();

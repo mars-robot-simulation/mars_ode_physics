@@ -150,13 +150,13 @@ namespace mars
         {
             utils::Vector resultantForce = {0,0,0};
 
-            for (const auto& cf : contactForceVectors){
-                resultantForce.x() += cf.x();
-                resultantForce.y() += cf.y();
-                resultantForce.z() += cf.z();
+            for (const auto& jointFeedback : jointFeedbacks){
+                resultantForce.x() += jointFeedback->f1[0];
+                resultantForce.y() += jointFeedback->f1[1];
+                resultantForce.z() += jointFeedback->f1[2];
             }
             
-            contactForceVector = resultantForce;
+            contactForceVector = std::move(resultantForce);
             contactForce = contactForceVector.norm();
         }
 
@@ -883,7 +883,11 @@ namespace mars
 
         void Frame::clearContactData()
         {
-            contactForceVectors.clear();
+            for(auto jointFeedback : jointFeedbacks)
+            {
+                delete jointFeedback;
+            }
+            jointFeedbacks.clear();
             contactForceVector = {0,0,0};
             contactForce = 0.0;
         }
@@ -997,17 +1001,9 @@ namespace mars
                 return;
             }
 
-            dJointFeedback* fb = (dJointFeedback*)malloc(sizeof(dJointFeedback));
-            if (fb == nullptr) {
-                // Handle memory allocation failure
-                throw std::bad_alloc();
-            }
-
+            auto* const fb = new dJointFeedback{};
             dJointSetFeedback(contactJoint, fb);
-
-            utils::Vector contactForceVector = {fb->f1[0], fb->f1[1], fb->f1[2]};
-            contactForceVectors.push_back(contactForceVector);
-            free(fb);
+            jointFeedbacks.push_back(fb);
         }
 
         void Frame::addLinkedFrame(std::shared_ptr<DynamicObject> linked)
