@@ -125,6 +125,7 @@ namespace mars
             //std::vector<sensor_list_element>::iterator iter;
             const MutexLocker locker{&(theWorld->iMutex)};
 
+            clearContactData();
             if(nBody)
             {
                 dBodyDestroy(nBody);
