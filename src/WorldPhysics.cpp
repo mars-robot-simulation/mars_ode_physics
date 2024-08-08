@@ -162,7 +162,7 @@ namespace mars
                 // LOG_DEBUG("init physics world");
                 world = dWorldCreate();
 
-                auto threadingImpl = dThreadingAllocateSelfThreadedImplementation();
+                threadingImpl = dThreadingAllocateSelfThreadedImplementation();
                 const auto* const functions = dThreadingImplementationGetFunctions(threadingImpl);
                 dWorldSetStepThreadingImplementation(world, functions, threadingImpl);
 
@@ -200,6 +200,9 @@ namespace mars
             if (world_init)
             {
                 // LOG_DEBUG("free physics world");
+                dThreadingImplementationShutdownProcessing(threadingImpl);
+                dWorldSetStepThreadingImplementation(world, NULL, NULL);
+                dThreadingFreeImplementation(threadingImpl);
                 dJointGroupDestroy(contactgroup);
                 dWorldDestroy(world);
                 world_init = 0;

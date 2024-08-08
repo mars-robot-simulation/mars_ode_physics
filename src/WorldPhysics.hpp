@@ -97,6 +97,7 @@ namespace mars
             utils::Mutex drawLock;
             dWorldID world;
             dJointGroupID contactgroup;
+            dThreadingImplementationID threadingImpl;
             bool world_init;
             utils::Vector old_gravity;
             interfaces::sReal old_cfm, old_erp;
