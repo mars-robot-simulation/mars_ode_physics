@@ -43,7 +43,7 @@ namespace mars
         using namespace interfaces;
 
         PhysicsError WorldPhysics::error = PHYSICS_NO_ERROR;
-        bool WorldPhysics::odeLibIsInit = false;
+        bool WorldPhysics::odeLibInitCount = 0;
 
         void myMessageFunction(int errnum, const char *msg, va_list ap)
         {
@@ -99,7 +99,7 @@ namespace mars
             // dInitODE is relevant for using trimesh objects as correct as
             // possible in the ode implementation
             const MutexLocker locker{&iMutex};
-            if (!odeLibIsInit)
+            if (odeLibIsInit == 0)
             {
                 fprintf(stderr, "............ call dInitODE2\n");
 #ifdef ODE11
@@ -111,7 +111,11 @@ namespace mars
                 dSetErrorHandler(myErrorFunction);
                 dSetDebugHandler(myDebugFunction);
                 dSetMessageHandler(myMessageFunction);
-                odeLibIsInit = true;
+                odeLibInitCount = 1;
+            }
+            else
+            {
+                ++odeLibIinitCount;
             }
 
             dAllocateODEDataForThread(dAllocateMaskAll);
@@ -133,7 +137,12 @@ namespace mars
             freeTheWorld();
             // and close the ODE ...
             MutexLocker locker(&iMutex);
-            dCloseODE();
+
+            // Todo: Check correct handling of odeInit and odeClose
+            if(--odeLibInitCount == 0)
+            {
+                dCloseODE();
+            }
         }
 
         std::string WorldPhysics::getLibName(void)

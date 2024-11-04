@@ -92,7 +92,7 @@ namespace mars
             dReal max_correcting_vel;
 
             static interfaces::PhysicsError error;
-            static bool odeLibIsInit;
+            static int odeLibInitClount;
         private:
             utils::Mutex drawLock;
             dWorldID world;
