@@ -1083,8 +1083,8 @@ namespace mars
             getForce(&torque);
             result["torque"] = mars::utils::vectorToConfigItem(torque);
 
-            mars::interfaces::sReal mass, inertia;
-            getMass(&mass, &inertia);
+            mars::interfaces::sReal mass, inertia[9];
+            getMass(&mass, inertia);
             result["mass"] = mass;
             result["inertia"] = inertia;
 
