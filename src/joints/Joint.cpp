@@ -213,8 +213,8 @@ namespace mars
                 //get the bodies from the interfaces nodes
                 //here we have to make some verifications
                 // TODO: we should store the joint in the frames
-                fprintf(stderr, "joint type: %s\n", config["type"].getString().c_str());
-                fprintf(stderr, "connect: %s --- %s\n", config["parent_link_name"].getString().c_str(), config["child_link_name"].getString().c_str());
+                LOG_INFO("joint type: %s\n", config["type"].getString().c_str());
+                LOG_INFO("connect: %s --- %s\n", config["parent_link_name"].getString().c_str(), config["child_link_name"].getString().c_str());
                 std::shared_ptr<Frame> n1 = theWorld->getFrameIntern(config["parent_link_name"]);
                 if (n1 == nullptr)
                 {
@@ -1249,7 +1249,7 @@ namespace mars
                 return -1*dJointGetSliderParam(jointId, dParamHiStop);
             default:
                 // not implemented yes
-                fprintf(stderr, "mars::ode_physics::Joint: getLowStop for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: getLowStop for type %d not implemented yet\n", joint_type);
                 return 0.;
             }
         }
@@ -1266,7 +1266,7 @@ namespace mars
                 return -1*dJointGetSliderParam(jointId, dParamLoStop);
             default:
                 // not implemented yes
-                fprintf(stderr, "mars::ode_physics::Joint: getHighStop for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: getHighStop for type %d not implemented yet\n", joint_type);
                 return 0.;
             }
         }
@@ -1279,7 +1279,7 @@ namespace mars
                 return dJointGetHinge2Param(jointId, dParamLoStop2);
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: getLowStop2 for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: getLowStop2 for type %d not implemented yet\n", joint_type);
                 return 0.;
             }
         }
@@ -1292,7 +1292,7 @@ namespace mars
                 return dJointGetHinge2Param(jointId, dParamHiStop2);
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: getHighStop2 for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: getHighStop2 for type %d not implemented yet\n", joint_type);
                 return 0.;
             }
         }
@@ -1309,7 +1309,7 @@ namespace mars
                 return dJointGetSliderParam(jointId, dParamCFM);
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: cfm for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: cfm for type %d not implemented yet\n", joint_type);
                 return 0.;
             }
         }
@@ -1329,7 +1329,7 @@ namespace mars
                 break;
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: setLowStop for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: setLowStop for type %d not implemented yet\n", joint_type);
                 break;
             }
         }
@@ -1349,7 +1349,7 @@ namespace mars
                 break;
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: setHighStop for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: setHighStop for type %d not implemented yet\n", joint_type);
                 break;
             }
         }
@@ -1363,7 +1363,7 @@ namespace mars
                 break;
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: setLowStop2 for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: setLowStop2 for type %d not implemented yet\n", joint_type);
                 break;
             }
         }
@@ -1377,7 +1377,7 @@ namespace mars
                 break;
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: setHighStop2 for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: setHighStop2 for type %d not implemented yet\n", joint_type);
                 break;
             }
         }
@@ -1397,7 +1397,7 @@ namespace mars
                 break;
             default:
                 // not implemented yet
-                fprintf(stderr, "mars::ode_physics::Joint: cfm for type %d not implemented yet\n", joint_type);
+                LOG_ERROR("mars::ode_physics::Joint: cfm for type %d not implemented yet\n", joint_type);
                 break;
             }
         }

@@ -797,7 +797,7 @@ namespace mars
 
             dMassRotate(&myMass, R);
             dMassTranslate(&myMass, pos.x(), pos.y(), pos.z());
-            fprintf(stderr, "addObjectMass: %g %g\n", nMass.mass, myMass.mass);
+            LOG_INFO("addObjectMass: %g %g\n", nMass.mass, myMass.mass);
             dMassAdd(&nMass, &myMass);
 
 
@@ -821,7 +821,7 @@ namespace mars
             const dReal *bpos = dBodyGetPosition(nBody);
             if(fabs(tpos[0]) > 0.000001 || fabs(tpos[1]) > 0.000001 || fabs(tpos[2]) > 0.000001)
             {
-                fprintf(stderr, "--------+++++++++++++++**********\n");
+                //fprintf(stderr, "--------+++++++++++++++**********\n");
             }
 
             tpos[0] += bpos[0];
