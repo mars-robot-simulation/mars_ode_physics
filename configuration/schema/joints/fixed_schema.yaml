@@ -20,17 +20,4 @@ anchor:
 type: 
     type: string
     required: true
-axis1:
-    type: object
-    required: true
-    properties:
-        x:
-         type: number
-         required: true
-        y:
-         type: number
-         required: true
-        z:
-         type: number
-         required: true
 

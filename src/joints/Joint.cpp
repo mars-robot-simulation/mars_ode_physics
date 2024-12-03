@@ -216,15 +216,10 @@ namespace mars
                 LOG_INFO("joint type: %s\n", config["type"].getString().c_str());
                 LOG_INFO("connect: %s --- %s\n", config["parent_link_name"].getString().c_str(), config["child_link_name"].getString().c_str());
                 std::shared_ptr<Frame> n1 = theWorld->getFrameIntern(config["parent_link_name"]);
-                if (n1 == nullptr)
-                {
-                    LOG_ERROR("Can not create a new joint, since no parent link with the name " + config["parent_link_name"].toString() + " was found.");
-                    return false;
-                }
                 std::shared_ptr<Frame> n2 = theWorld->getFrameIntern(config["child_link_name"]);
-                if (n2 == nullptr)
+                if (n1 == nullptr && n2 == nullptr)
                 {
-                    LOG_ERROR("Can not create a new joint, since no child link with the name " + config["child_link_name"].toString() + " was found.");
+                    LOG_ERROR("Can not create a new joint, since no parent nor a child link could be found. One is required. Parent name: %s \tChild name: %s", config["parent_link_name"].toString().c_str(), config["child_link_name"].toString().c_str());
                     return false;
                 }
 
