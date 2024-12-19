@@ -82,6 +82,7 @@ namespace mars
             void addObjectMass(Object *object);
 
             void updateState();
+            void update();
             
             // --- mars::interfaces::ConfigMapInterface ---
             virtual configmaps::ConfigMap getConfigMap() const override;
@@ -109,6 +110,7 @@ namespace mars
             std::vector<dJointFeedback*> jointFeedbacks;
             utils::Vector contactForceVector;
             interfaces::sReal contactForce;
+            interfaces::sReal linearDamping, angularDamping;
 
             void addToDataBroker();
             void removeFromDataBroker();

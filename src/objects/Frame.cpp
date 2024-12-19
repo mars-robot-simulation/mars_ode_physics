@@ -53,6 +53,13 @@ namespace mars
             offsetPos = Vector(0, 0, 0);
             name << config["name"];
             pushToDataBroker = 2; // push all data TODO: use enum
+            linearDamping = 1.1;
+            angularDamping = 1.1;
+            if(config.hasKey("linearDamping"))
+            {
+                linearDamping = config["linearDamping"];
+                angularDamping = config["angularDamping"];
+            }
             if(config.hasKey("pushToDataBroker"))
             {
                 pushToDataBroker = config["pushToDataBroker"];
@@ -868,6 +875,7 @@ namespace mars
 
         void Frame::updateState()
         {
+            // is called from external, thus we have to lock the physics thread
             MutexLocker locker(&(theWorld->iMutex));
             if(nBody)
             {
@@ -880,6 +888,31 @@ namespace mars
                 q.y() = (sReal)rot[2];
                 q.z() = (sReal)rot[3];
                 q.w() = (sReal)rot[0];
+            }
+        }
+
+        void Frame::update()
+        {
+            // is called internally
+            if(nBody && linearDamping < 1.0)
+            {
+                const dReal *tmp;
+                dReal vel[3];
+                tmp = dBodyGetLinearVel(nBody);
+                vel[0] = tmp[0]*linearDamping;
+                vel[1] = tmp[1]*linearDamping;
+                vel[2] = tmp[2]*linearDamping;
+                dBodySetLinearVel(nBody, vel[0], vel[1], vel[2]);
+            }
+            if(nBody && angularDamping < 1.0)
+            {
+                const dReal *tmp;
+                dReal vel[3];
+                tmp = dBodyGetAngularVel(nBody);
+                vel[0] = tmp[0]*angularDamping;
+                vel[1] = tmp[1]*angularDamping;
+                vel[2] = tmp[2]*angularDamping;
+                dBodySetAngularVel(nBody, vel[0], vel[1], vel[2]);
             }
         }
 

@@ -370,6 +370,19 @@ namespace mars
                             jointMap.erase(it);
                         }
                     }
+
+                    for (auto it = frameMap.begin(); it != frameMap.end();++it)
+                    {
+                        if (auto frame = it->second.lock())
+                        {
+                            frame->update();
+                        }
+                        else
+                        {
+                            // The joint was deleted => remove it from mapping
+                            frameMap.erase(it);
+                        }
+                    }
                     computeContactForces();
                 }
                 catch (int id)

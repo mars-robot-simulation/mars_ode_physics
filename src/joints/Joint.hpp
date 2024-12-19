@@ -73,6 +73,8 @@ namespace mars
             virtual void setLowStop2(interfaces::sReal lowStop2) override;
             virtual void setHighStop2(interfaces::sReal highStop2) override;
             virtual void setCFM(interfaces::sReal cfm) override;
+            virtual void setJointFrictionCoefficient(interfaces::sReal friction) override;
+            virtual interfaces::sReal getJointFrictionCoefficient() override;
             virtual void getDataBrokerNames(std::string& groupName, std::string& dataName) override;
 
             // --- mars::interfaces::ConfigMapInterface ---
@@ -104,12 +106,19 @@ namespace mars
             utils::Vector axis1_torque, axis2_torque, joint_load;
             utils::Vector axis1, axis2, f1, t1, f2, t2, anchor;
             dReal position1, velocity1, position2, velocity2, motor_torque;
+            dReal frictionCoefficient;
             std::string name;
+            std::weak_ptr<Frame> parentFrame, childFrame;
 
             void calculateCfmErp();
             void addToDataBroker();
             void removeFromDataBroker();
+            void getAxisI(utils::Vector* axis) const;
+            interfaces::sReal getVelocityI(void) const;
             virtual void updateState() = 0;
+            void applyJointFriction();
+            void applyJointFriction(std::shared_ptr<Frame> frame,
+                                    utils::Vector axis, interfaces::sReal dampingTorque);
 
         private:
             bool joint_created;

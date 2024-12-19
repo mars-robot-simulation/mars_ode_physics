@@ -29,7 +29,7 @@ namespace mars
          */
         Joint::Joint(WorldPhysics *world,
                      data_broker::DataBrokerInterface *dataBroker,
-                     configmaps::ConfigMap &config) : 
+                     configmaps::ConfigMap &config) :
                      theWorld(world), dataBroker(dataBroker), config(config)
         {
             jointId = ball_motor = 0;
@@ -38,10 +38,16 @@ namespace mars
             lo1 = lo2 = hi1 = hi2 = 0;
             damping = 0;
             spring = 0;
+            frictionCoefficient = -0.1;
             body1 = 0;
             body2 = 0;
             joint_created = false;
             name << config["name"];
+
+            if(config.hasKey("frictionCoefficient"))
+            {
+                frictionCoefficient = config["frictionCoefficient"];
+            }
 
             pushToDataBroker = 2; // push all data TODO: use enum
             if(config.hasKey("pushToDataBroker"))
@@ -215,9 +221,11 @@ namespace mars
                 // TODO: we should store the joint in the frames
                 LOG_INFO("joint type: %s\n", config["type"].getString().c_str());
                 LOG_INFO("connect: %s --- %s\n", config["parent_link_name"].getString().c_str(), config["child_link_name"].getString().c_str());
-                std::shared_ptr<Frame> n1 = theWorld->getFrameIntern(config["parent_link_name"]);
-                std::shared_ptr<Frame> n2 = theWorld->getFrameIntern(config["child_link_name"]);
-                if (n1 == nullptr && n2 == nullptr)
+                parentFrame = theWorld->getFrameIntern(config["parent_link_name"]);
+                childFrame = theWorld->getFrameIntern(config["child_link_name"]);
+                std::shared_ptr<Frame> n1 = parentFrame.lock();
+                std::shared_ptr<Frame> n2 = childFrame.lock();
+                if(n1 == nullptr && n2 == nullptr)
                 {
                     LOG_ERROR("Can not create a new joint, since no parent nor a child link could be found. One is required. Parent name: %s \tChild name: %s", config["parent_link_name"].toString().c_str(), config["child_link_name"].toString().c_str());
                     return false;
@@ -275,7 +283,7 @@ namespace mars
             dReal pos[4] = {0,0,0,0};
             MutexLocker locker(&(theWorld->iMutex));
 
-            switch(joint_type) 
+            switch(joint_type)
             {
             case  JOINT_TYPE_HINGE:
                 dJointGetHingeAnchor(jointId, pos);
@@ -524,8 +532,14 @@ namespace mars
          */
         void Joint::getAxis(Vector* axis) const
         {
-            dReal pos[4] = {0,0,0,0};
             MutexLocker locker(&(theWorld->iMutex));
+            getAxisI(axis);
+        }
+
+
+        void Joint::getAxisI(Vector* axis) const
+        {
+            dReal pos[4] = {0,0,0,0};
 
             switch(joint_type)
             {
@@ -999,6 +1013,51 @@ namespace mars
                     axis2_torque.z() += (sReal)(axis2[2]*dot);
                 }
             }
+            applyJointFriction();
+        }
+
+        void Joint::setJointFrictionCoefficient(sReal friction)
+        {
+            frictionCoefficient = friction;
+        }
+
+        sReal Joint::getJointFrictionCoefficient()
+        {
+            return frictionCoefficient;
+        }
+
+        void Joint::applyJointFriction()
+        {
+            if(frictionCoefficient > 0.0)
+            {
+                Vector axis;
+                getAxisI(&axis);
+                sReal vel = getVelocityI();
+                sReal dampingTorque = vel*-frictionCoefficient;
+
+                std::shared_ptr<Frame> n1 = parentFrame.lock();
+                std::shared_ptr<Frame> n2 = childFrame.lock();
+                if(n1) applyJointFriction(n1, axis, dampingTorque);
+                if(n2) applyJointFriction(n2, axis, dampingTorque);
+            }
+        }
+
+        void Joint::applyJointFriction(std::shared_ptr<Frame> frame, Vector axis, sReal dampingTorque)
+        {
+            // 1. get frame position
+            dBodyID body = frame->getBody();
+            if(!body)
+            {
+                return;
+            }
+            const dReal *bpos = dBodyGetPosition(body);
+            Vector pos(bpos[0],bpos[1],bpos[2]);
+            pos -= axis;
+            Quaternion q = angleAxisToQuaternion(dampingTorque, axis);
+            Vector force = q*pos - pos;
+            Vector torque = axis.normalized() * dampingTorque;
+            dBodyAddForce(body, (dReal)force.x(), (dReal)force.y(), (dReal)force.z());
+            dBodyAddTorque(body, (dReal)torque.x(), (dReal)torque.y(), (dReal)torque.z());
         }
 
         void Joint::getJointLoad(Vector *t) const
@@ -1011,6 +1070,11 @@ namespace mars
         sReal Joint::getVelocity(void) const
         {
             MutexLocker locker(&(theWorld->iMutex));
+            return getVelocityI();
+        }
+
+        sReal Joint::getVelocityI(void) const
+        {
             switch(joint_type)
             {
             case  JOINT_TYPE_HINGE:
