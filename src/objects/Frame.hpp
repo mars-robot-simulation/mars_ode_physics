@@ -56,6 +56,7 @@ namespace mars
             virtual std::vector<std::shared_ptr<DynamicObject>> getLinkedFrames(void) override;
 
             void getLinearVelocity(utils::Vector *vel) const;
+            void getLinearAcceleration(utils::Vector *vel) const;
             void getAngularVelocity(utils::Vector *vel) const;
             void getForce(utils::Vector *f) const;
             void getTorque(utils::Vector *t) const;
@@ -108,7 +109,7 @@ namespace mars
             utils::Vector offsetPos;
             bool ground_contact;
             std::vector<dJointFeedback*> jointFeedbacks;
-            utils::Vector contactForceVector;
+            utils::Vector contactForceVector, l_acc, a_acc, last_l_vel, last_a_vel;
             interfaces::sReal contactForce;
             interfaces::sReal linearDamping, angularDamping;
 

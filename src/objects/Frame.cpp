@@ -49,6 +49,7 @@ namespace mars
             dMassSetZero(&nMass);
             contactForce = 0;
             contactForceVector = {0,0,0};
+            last_l_vel = last_a_vel = {0,0,0};
 
             offsetPos = Vector(0, 0, 0);
             name << config["name"];
@@ -399,6 +400,12 @@ namespace mars
                 vel->y() = (sReal)0;
                 vel->z() = (sReal)0;
             }
+        }
+
+        void Frame::getLinearAcceleration(utils::Vector *vel) const
+        {
+            MutexLocker locker(&(theWorld->iMutex));
+            *vel = l_acc;
         }
 
         /**
@@ -894,25 +901,46 @@ namespace mars
         void Frame::update()
         {
             // is called internally
-            if(nBody && linearDamping < 1.0)
+            if(nBody)
             {
-                const dReal *tmp;
-                dReal vel[3];
-                tmp = dBodyGetLinearVel(nBody);
-                vel[0] = tmp[0]*linearDamping;
-                vel[1] = tmp[1]*linearDamping;
-                vel[2] = tmp[2]*linearDamping;
-                dBodySetLinearVel(nBody, vel[0], vel[1], vel[2]);
-            }
-            if(nBody && angularDamping < 1.0)
-            {
-                const dReal *tmp;
-                dReal vel[3];
-                tmp = dBodyGetAngularVel(nBody);
-                vel[0] = tmp[0]*angularDamping;
-                vel[1] = tmp[1]*angularDamping;
-                vel[2] = tmp[2]*angularDamping;
-                dBodySetAngularVel(nBody, vel[0], vel[1], vel[2]);
+                dReal dt = theWorld->step_size;
+                if(dt > 0)
+                {
+                    const dReal *tmp;
+                    tmp = dBodyGetLinearVel(nBody);
+                    Vector v(tmp[0], tmp[1], tmp[2]);
+                    l_acc = (v - last_l_vel) / dt;
+                    last_l_vel = v;
+                    tmp = dBodyGetAngularVel(nBody);
+                    v = {tmp[0], tmp[1], tmp[2]};
+                    a_acc = (v - last_a_vel) / dt;
+                    last_a_vel = v;
+                }
+                else
+                {
+                    l_acc = last_l_vel = Vector(0,0,0);
+                    a_acc = last_a_vel = Vector(0,0,0);
+                }
+                if(linearDamping < 1.0)
+                {
+                    const dReal *tmp;
+                    dReal vel[3];
+                    tmp = dBodyGetLinearVel(nBody);
+                    vel[0] = tmp[0]*linearDamping;
+                    vel[1] = tmp[1]*linearDamping;
+                    vel[2] = tmp[2]*linearDamping;
+                    dBodySetLinearVel(nBody, vel[0], vel[1], vel[2]);
+                }
+                if(angularDamping < 1.0)
+                {
+                    const dReal *tmp;
+                    dReal vel[3];
+                    tmp = dBodyGetAngularVel(nBody);
+                    vel[0] = tmp[0]*angularDamping;
+                    vel[1] = tmp[1]*angularDamping;
+                    vel[2] = tmp[2]*angularDamping;
+                    dBodySetAngularVel(nBody, vel[0], vel[1], vel[2]);
+                }
             }
         }
 
