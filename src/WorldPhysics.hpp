@@ -102,6 +102,13 @@ namespace mars
             utils::Vector old_gravity;
             interfaces::sReal old_cfm, old_erp;
 
+            double avg_world_step;
+            double avg_pre_step;
+            double avg_joint_step;
+            double avg_frame_step;
+            double avg_world_step2;
+            int time_count;
+
             std::vector<dJointFeedback*> contact_feedback_list;
             std::map<std::string, std::weak_ptr<Frame>> frameMap;
             std::map<std::string, std::weak_ptr<interfaces::JointInterface>> jointMap;

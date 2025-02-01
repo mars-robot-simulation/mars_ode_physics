@@ -94,6 +94,13 @@ namespace mars
             max_angular_speed = 10.0; // I guess this is rad/s
             max_correcting_vel = 5.0;
 
+            avg_world_step = 0;
+            avg_pre_step = 0;
+            avg_joint_step = 0;
+            avg_frame_step = 0;
+            avg_world_step2 = 0;
+            time_count = 0;
+
             // the step size in seconds
             step_size = 0.01;
             // dInitODE is relevant for using trimesh objects as correct as
@@ -306,21 +313,21 @@ namespace mars
             dJointGroupEmpty(contactgroup);
 
             for (auto& pair : frameMap) {
-                std::shared_ptr<Frame> framePtr = pair.second.lock();                
+                std::shared_ptr<Frame> framePtr = pair.second.lock();
                 if (framePtr) {
                     framePtr->clearContactData();
-                } 
-            }         
+                }
+            }
         }
 
         void WorldPhysics::computeContactForces()
         {
             for (auto& pair : frameMap) {
-                std::shared_ptr<Frame> framePtr = pair.second.lock();                
+                std::shared_ptr<Frame> framePtr = pair.second.lock();
                 if (framePtr) {
                     framePtr->computeContactForce();
-                } 
-            } 
+                }
+            }
         }
 
         /**
@@ -338,11 +345,14 @@ namespace mars
         void WorldPhysics::stepTheWorld(void)
         {
             const MutexLocker locker{&iMutex};
+            long long time1 = utils::getTimeU();
 
             // if world_init = false or step_size <= 0 debug something
             if (world_init && step_size > 0)
             {
+                long long time = utils::getTimeU();
                 preStepChecks();
+                avg_pre_step += utils::getTimeDiffU(time)*0.001;
                 /// first check for collisions
                 num_contacts = log_contacts = 0;
 
@@ -351,13 +361,18 @@ namespace mars
                 {
                     if (fast_step)
                     {
+                        long long time = utils::getTimeU();
                         dWorldQuickStep(world, step_size);
+                        avg_world_step2 += utils::getTimeDiffU(time)*0.001;
                     }
                     else
                     {
+                        long long time = utils::getTimeU();
                         dWorldStep(world, step_size);
+                        avg_world_step2 += utils::getTimeDiffU(time)*0.001;
                     }
 
+                    time = utils::getTimeU();
                     for (auto it = jointMap.begin(); it != jointMap.end();++it)
                     {
                         if (auto joint = it->second.lock())
@@ -370,7 +385,9 @@ namespace mars
                             jointMap.erase(it);
                         }
                     }
+                    avg_joint_step += utils::getTimeDiffU(time)*0.001;
 
+                    time = utils::getTimeU();
                     for (auto it = frameMap.begin(); it != frameMap.end();++it)
                     {
                         if (auto frame = it->second.lock())
@@ -384,6 +401,7 @@ namespace mars
                         }
                     }
                     computeContactForces();
+                    avg_frame_step += utils::getTimeDiffU(time)*0.001;
                 }
                 catch (int id)
                 {
@@ -405,6 +423,22 @@ namespace mars
                 {
                     // control->sim->handleError(WorldPhysics::error);
                     WorldPhysics::error = PHYSICS_NO_ERROR;
+                }
+                avg_world_step += utils::getTimeDiffU(time1)*0.001;
+                if(++time_count == 1000)
+                {
+                    avg_world_step *= 0.001;
+                    avg_world_step2 *= 0.001;
+                    avg_pre_step *= 0.001;
+                    avg_joint_step *= 0.001;
+                    avg_frame_step *= 0.001;
+                    fprintf(stderr, "avg. world step: %g\twi %g\tpre %g\tjoint %g\tframe %g\n", avg_world_step, avg_world_step2, avg_pre_step, avg_joint_step, avg_frame_step);
+                    avg_world_step = 0.0;
+                    avg_world_step2 = 0.0;
+                    avg_pre_step = 0.0;
+                    avg_joint_step = 0.0;
+                    avg_frame_step = 0.0;
+                    time_count = 0;
                 }
             }
         }
