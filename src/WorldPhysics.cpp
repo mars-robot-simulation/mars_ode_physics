@@ -168,6 +168,7 @@ namespace mars
             // if world_init = true debug something
             if (!world_init)
             {
+                dRandSetSeed(11211);
                 // LOG_DEBUG("init physics world");
                 world = dWorldCreate();
 
