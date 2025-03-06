@@ -102,12 +102,8 @@ namespace mars
             if (odeLibInitCount == 0)
             {
                 fprintf(stderr, "............ call dInitODE2\n");
-#ifdef ODE11
-                // for ode-0.11
-                dInitODE2(0);
-#else
                 dInitODE();
-#endif
+                //dInitODE2(0);
                 dSetErrorHandler(myErrorFunction);
                 dSetDebugHandler(myDebugFunction);
                 dSetMessageHandler(myMessageFunction);
@@ -118,9 +114,10 @@ namespace mars
                 ++odeLibInitCount;
             }
 
-            dAllocateODEDataForThread(dAllocateMaskAll);
+            //dAllocateODEDataForThread(dAllocateMaskAll);
             registerSchemaValidators();
         }
+
         /**
          * \brief Close ODE environment
          *
@@ -172,7 +169,18 @@ namespace mars
                 // LOG_DEBUG("init physics world");
                 world = dWorldCreate();
 
-                threadingImpl = dThreadingAllocateSelfThreadedImplementation();
+                // multi threaded -> not yet stable
+                {
+                    //threadingImpl = dThreadingAllocateMultiThreadedImplementation();
+                    //pool = dThreadingAllocateThreadPool(4, 0, dAllocateFlagBasicData, NULL);
+                    //dThreadingThreadPoolServeMultiThreadedImplementation(pool, threadingImpl);
+                }
+
+                // single threaded
+                {
+                    threadingImpl = dThreadingAllocateSelfThreadedImplementation();
+                }
+
                 const auto* const functions = dThreadingImplementationGetFunctions(threadingImpl);
                 dWorldSetStepThreadingImplementation(world, functions, threadingImpl);
 
@@ -211,6 +219,7 @@ namespace mars
             {
                 // LOG_DEBUG("free physics world");
                 dThreadingImplementationShutdownProcessing(threadingImpl);
+                //dThreadingFreeThreadPool(pool); // <-- for multithreaded
                 dWorldSetStepThreadingImplementation(world, NULL, NULL);
                 dThreadingFreeImplementation(threadingImpl);
                 dJointGroupDestroy(contactgroup);

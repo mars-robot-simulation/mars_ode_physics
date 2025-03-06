@@ -98,6 +98,7 @@ namespace mars
             dWorldID world;
             dJointGroupID contactgroup;
             dThreadingImplementationID threadingImpl;
+            //dThreadingThreadPoolID pool; // required for multi-threading
             bool world_init;
             utils::Vector old_gravity;
             interfaces::sReal old_cfm, old_erp;
