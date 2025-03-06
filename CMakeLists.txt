@@ -106,8 +106,17 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
             pthread
 )
 
-
-
+add_executable(reproducable_test src/logging.cpp test/reproducable_test.cpp)
+target_compile_features(reproducable_test PUBLIC cxx_std_17)
+TARGET_LINK_LIBRARIES(reproducable_test
+            ${PKGCONFIG_LIBRARIES}
+            ${WIN_LIBS}
+            pthread
+)
+target_compile_definitions(reproducable_test PRIVATE "-DTEST=1")
+target_link_libraries(reproducable_test ${PROJECT_NAME})
+configure_file(scripts/reproducable_test.sh ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file(scripts/reproducable_plot.py ${CMAKE_BINARY_DIR} COPYONLY)
 
 if(WIN32)
   set(LIB_INSTALL_DIR bin) # .dll are in PATH, like executables
