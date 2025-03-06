@@ -316,21 +316,21 @@ namespace mars
             dJointGroupEmpty(contactgroup);
 
             for (auto& pair : frameMap) {
-                std::shared_ptr<Frame> framePtr = pair.second.lock();                
+                std::shared_ptr<Frame> framePtr = pair.second.lock();
                 if (framePtr) {
                     framePtr->clearContactData();
-                } 
-            }         
+                }
+            }
         }
 
         void WorldPhysics::computeContactForces()
         {
             for (auto& pair : frameMap) {
-                std::shared_ptr<Frame> framePtr = pair.second.lock();                
+                std::shared_ptr<Frame> framePtr = pair.second.lock();
                 if (framePtr) {
                     framePtr->computeContactForce();
-                } 
-            } 
+                }
+            }
         }
 
         /**
