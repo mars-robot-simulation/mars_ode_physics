@@ -61,6 +61,7 @@ namespace mars
                 linearDamping = config["linearDamping"];
                 angularDamping = config["angularDamping"];
             }
+            pushToDataBroker = 0;
             if(config.hasKey("pushToDataBroker"))
             {
                 pushToDataBroker = config["pushToDataBroker"];
@@ -1039,6 +1040,13 @@ namespace mars
 
             c.surface.mode = dContactSoftERP | dContactSoftCFM;
             c.surface.mode |= dContactApprox1;
+            // todo: add handling of surface mode if paramters are defined
+            //       - dContactRolling
+            //       - dContactFDir1
+            //       - dContactMotion1
+            //       - dContactSlip1
+            //       - dContactSlip2
+            //       - dContactBounce
             c.surface.mu = contact.c_params.friction1;
             c.surface.mu2 = contact.c_params.friction2;
             c.surface.rho = contact.c_params.rolling_friction;
@@ -1050,6 +1058,8 @@ namespace mars
             c.surface.soft_erp = contact.c_params.erp;
             c.surface.motion1 = contact.c_params.motion1;
             c.surface.motion2 = contact.c_params.motion2;
+            c.surface.slip1 = contact.c_params.fds1;
+            c.surface.slip2 = contact.c_params.fds2;
             // TODO: c.surface.motionN = ???
             // TODO: c.surface.slip1 = ??? fds1?
             // TODO: c.surface.slip2 = ??? fds2?
