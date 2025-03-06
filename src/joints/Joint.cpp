@@ -16,6 +16,8 @@
 #include <cstdio>
 #include <iostream>
 
+#include "../logging.h"
+
 namespace mars
 {
     namespace ode_physics

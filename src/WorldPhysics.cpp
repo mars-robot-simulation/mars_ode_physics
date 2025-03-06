@@ -31,8 +31,9 @@
 #include <mars_utils/misc.h>
 #include <mars_utils/mathUtils.h>
 
-#define EPSILON 1e-10
+#include "logging.h"
 
+#define EPSILON 1e-10
 
 namespace mars
 {
