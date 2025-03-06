@@ -1,5 +1,6 @@
 #include "logging.hpp"
 #include <cstdio>
+#include <cstdarg>
 
 void myprint(const std::string format, ...)
 {
