@@ -16,7 +16,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "../logging.h"
+#include "../logging.hpp"
 
 namespace mars
 {
