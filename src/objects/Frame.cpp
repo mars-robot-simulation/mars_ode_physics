@@ -61,7 +61,6 @@ namespace mars
                 linearDamping = config["linearDamping"];
                 angularDamping = config["angularDamping"];
             }
-            pushToDataBroker = 0;
             if(config.hasKey("pushToDataBroker"))
             {
                 pushToDataBroker = config["pushToDataBroker"];
