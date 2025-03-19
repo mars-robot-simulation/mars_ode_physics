@@ -31,19 +31,50 @@ namespace mars
         bool Inertial::createMass()
         {
             dMassSetZero(&nMass);
-            nMass.mass =  (dReal)config["mass"];
-            nMass.I[0] =  (dReal)config["inertia"]["i00"];
-            nMass.I[1] =  (dReal)config["inertia"]["i01"];
-            nMass.I[2] =  (dReal)config["inertia"]["i02"];
-            nMass.I[3] =  0.0;
-            nMass.I[4] =  (dReal)config["inertia"]["i10"];
-            nMass.I[5] =  (dReal)config["inertia"]["i11"];
-            nMass.I[6] =  (dReal)config["inertia"]["i12"];
-            nMass.I[7] =  0.0;
-            nMass.I[8] =  (dReal)config["inertia"]["i20"];
-            nMass.I[9] =  (dReal)config["inertia"]["i21"];
-            nMass.I[10] = (dReal)config["inertia"]["i22"];
-            nMass.I[11] =  0.0;
+            // todo: add createFromCapsule and Cylinder
+            if(config.hasKey("createFromBox") && config["createFromBox"])
+            {
+                if((double)config["density"] > 0.0000001)
+                {
+                    // todo: load mass from object information
+                    dMassSetBox(&nMass, (dReal)(config["density"]), (dReal)config["x"], (dReal)config["y"], (dReal)config["z"]);
+                }
+                else if((double)config["mass"] > 0.0000001)
+                {
+                    // todo: load mass from object information
+                    dMassSetBoxTotal(&nMass, (dReal)(config["mass"]), (dReal)config["x"], (dReal)config["y"], (dReal)config["z"]);
+                }
+
+            } else if(config.hasKey("createFromSphere") && config["createFromSphere"])
+            {
+                if((double)config["density"] > 0.0000001)
+                {
+                    // todo: load mass from object information
+                    dMassSetSphere(&nMass, (dReal)(config["density"]), (dReal)config["x"]);
+                }
+                else if((double)config["mass"] > 0.0000001)
+                {
+                    // todo: load mass from object information
+                    dMassSetSphereTotal(&nMass, (dReal)(config["mass"]), (dReal)config["x"]);
+                }
+
+            } else
+            {
+                nMass.mass =  (dReal)config["mass"];
+                nMass.I[0] =  (dReal)config["inertia"]["i00"];
+                nMass.I[1] =  (dReal)config["inertia"]["i01"];
+                nMass.I[2] =  (dReal)config["inertia"]["i02"];
+                nMass.I[3] =  0.0;
+                nMass.I[4] =  (dReal)config["inertia"]["i10"];
+                nMass.I[5] =  (dReal)config["inertia"]["i11"];
+                nMass.I[6] =  (dReal)config["inertia"]["i12"];
+                nMass.I[7] =  0.0;
+                nMass.I[8] =  (dReal)config["inertia"]["i20"];
+                nMass.I[9] =  (dReal)config["inertia"]["i21"];
+                nMass.I[10] = (dReal)config["inertia"]["i22"];
+                nMass.I[11] =  0.0;
+            }
+
             if(!dMassCheck(&nMass))
             {
                 fprintf(stderr, "Mass problem:\n%s", config.toYamlString().c_str());
