@@ -1048,9 +1048,21 @@ namespace mars
             //       - dContactBounce
             c.surface.mu = contact.c_params.friction1;
             c.surface.mu2 = contact.c_params.friction2;
-            c.surface.rho = contact.c_params.rolling_friction;
-            c.surface.rho2 = contact.c_params.rolling_friction2;
-            c.surface.rhoN = contact.c_params.spinning_friction;
+            c.surface.rhoN = 0.0;
+            if(contact.c_params.rolling_friction > EPSILON)
+            {
+                c.surface.mode |= dContactRolling;
+                c.surface.rho = contact.c_params.rolling_friction;
+                c.surface.rho2 = contact.c_params.rolling_friction;
+            }
+            if(contact.c_params.rolling_friction2 > EPSILON)
+            {
+                c.surface.rho2 = contact.c_params.rolling_friction2;
+            }
+            if(contact.c_params.spinning_friction > EPSILON)
+            {
+                c.surface.rhoN = contact.c_params.spinning_friction;
+            }
             c.surface.bounce = contact.c_params.bounce;
             c.surface.bounce_vel = contact.c_params.bounce_vel;
             c.surface.soft_cfm = contact.c_params.cfm;
