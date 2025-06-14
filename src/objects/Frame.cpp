@@ -258,9 +258,7 @@ namespace mars
                 pos->z() = -(sReal)tpos[2];
             } else
             {
-                pos->x() = 0;
-                pos->y() = 0;
-                pos->z() = 0;
+                *pos = position;
             }
         }
 
