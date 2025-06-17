@@ -69,6 +69,7 @@ namespace mars
             virtual void removeFrame(const std::string &name) override;
             virtual void createObject(configmaps::ConfigMap &config) override;
             virtual std::shared_ptr<interfaces::JointInterface> createJoint(data_broker::DataBrokerInterface *dataBroker, configmaps::ConfigMap &config) override;
+            virtual void destroyJoint(const std::string &jointName) override;
             virtual std::shared_ptr<interfaces::JointInterface> getJoint(std::string name) override;
 
             virtual void exportWorld() override;

@@ -625,6 +625,15 @@ namespace mars
             // newJoint->setForceLimit(100.0);
         }
 
+        void WorldPhysics::destroyJoint(const std::string &jointName)
+        {
+            const auto& it = jointMap.find(jointName);
+            if (it != jointMap.end())
+            {
+                jointMap.erase(it);
+            }
+        }
+
         std::shared_ptr<JointInterface> WorldPhysics::getJoint(std::string name)
         {
             const auto& it = jointMap.find(name);
