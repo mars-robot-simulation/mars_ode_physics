@@ -7,16 +7,6 @@ parent_link_name:
 child_link_name: 
     type: string
     required: true
-anchor:
-    type: object
-    required: true
-    properties:
-        x:
-          type: number
-        y:
-          type: number
-        z:
-          type: number
 type: 
     type: string
     required: true
